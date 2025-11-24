@@ -51,6 +51,7 @@ class Themes extends ChangeNotifier {
 
   Color get darkBackgroundColor => Color.fromARGB(255, 44, 44, 44);
   Color get backgroundColor => _isDarkMode ? Color.fromARGB(255, 44, 44, 44) : Colors.white;
+  Color get primaryColor => Color.fromARGB(255, 88, 129, 87);
   Color get textColor => _isDarkMode ? Colors.white : Colors.black;
 
   TextStyle textStyle(BuildContext context) {

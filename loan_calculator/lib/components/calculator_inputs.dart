@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:loan_calculator/themes/theme.dart';
+import 'package:loan_calculator/widgets/input.dart';
+import 'package:loan_calculator/widgets/input_validations.dart';
 import 'package:provider/provider.dart';
 
 class CalculatorInputs extends StatefulWidget {
@@ -10,10 +12,31 @@ class CalculatorInputs extends StatefulWidget {
 }
 
 class _CalculatorInputsState extends State<CalculatorInputs> {
+  TextEditingController principalController = TextEditingController();
+  FocusNode principalNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<Themes>(context);
 
-    return const Placeholder();
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          InputBox(
+            hintText: 'Principal Balance', 
+            controller: principalController, 
+            outlinedColor: theme.primaryColor, 
+            backgroundColor: theme.backgroundColor,
+            focusNode: principalNode,
+            validations: [
+              InputValidation.onlyNumbers(),
+              InputValidation.minValue(1),
+              InputValidation.maxLength(10),
+            ],
+          )
+        ],
+      ),
+    );
   }
 }

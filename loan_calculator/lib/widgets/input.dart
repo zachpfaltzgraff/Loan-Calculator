@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loan_calculator/widgets/input_validations.dart';
 
 class InputBox extends StatefulWidget {
   final String hintText;
@@ -14,20 +15,25 @@ class InputBox extends StatefulWidget {
   final Function(String)? onSubmitted;
   final FocusNode? focusNode;
 
+  final List<InputValidation>? validations;
+  final Color errorColor;
+
   const InputBox({
     super.key,
     required this.hintText,
     required this.controller,
     required this.outlinedColor,
     required this.backgroundColor,
-    this.autoFocus = false,
-    this.textStyle,
     this.prefix,
-    this.obscureText = false,
+    this.textStyle,
     this.hintStyle,
-    this.onSubmitted,
     this.trailing,
+    this.autoFocus = false,
+    this.obscureText = false,
+    this.onSubmitted,
     this.focusNode,
+    this.validations,
+    this.errorColor = Colors.red,
   });
 
   @override
@@ -35,65 +41,85 @@ class InputBox extends StatefulWidget {
 }
 
 class _InputBoxState extends State<InputBox> {
+  String? errorText;
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.controller.addListener(() {
+      print(1);
+      _runValidation(widget.controller.text);
+    });
+  }
+
+  void _runValidation(String value) {
+    if (widget.validations == null) return;
+
+    for (var v in widget.validations!) {
+      if (!v.validate(value)) {
+        setState(() => errorText = v.errorMessage);
+        return;
+      }
+    }
+
+    setState(() => errorText = null);
+  }
+
+  bool get hasError => errorText != null;
 
   @override
   Widget build(BuildContext context) {
-    return FocusScope(
-      child: Focus(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+    final outlineColor = hasError ? widget.errorColor : widget.outlinedColor;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
             color: widget.backgroundColor,
-            borderRadius: BorderRadius.circular(20.0),
-            border: Border.all(
-              color: widget.outlinedColor,
-              width: 1.0,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: widget.outlinedColor,
-                offset: const Offset(0, 4),
-                blurRadius: 0.0,
-                spreadRadius: 0.0,
-              ),
-            ],
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(color: outlineColor, width: 2),
           ),
           child: Row(
             children: [
               if (widget.prefix != null) ...[
                 widget.prefix!,
-                const SizedBox(width: 8.0),
+                const SizedBox(width: 8),
               ],
               Expanded(
                 child: TextField(
-                  onTapOutside: (event) {
-                    widget.focusNode?.unfocus();
-                  },
-                  onTap: () {
-                    
-                  },
-                  focusNode: widget.focusNode,
-                  onSubmitted: widget.onSubmitted,
-                  autofocus: widget.autoFocus,
                   controller: widget.controller,
+                  focusNode: widget.focusNode,
                   obscureText: widget.obscureText,
-                  style: widget.textStyle,
-                  textAlignVertical: TextAlignVertical.center,
+                  autofocus: widget.autoFocus,
+                  onSubmitted: widget.onSubmitted,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: widget.hintText,
-                    hintStyle: widget.hintStyle,
+                    hintStyle: widget.hintStyle?.copyWith(
+                      color: hasError ? widget.errorColor : widget.hintStyle?.color,
+                    ),
                     isCollapsed: true,
                   ),
                 ),
               ),
-              if (widget.trailing != null)
-                widget.trailing!,
+              if (widget.trailing != null) widget.trailing!,
             ],
           ),
         ),
-      ),
+
+        if (hasError)
+          Padding(
+            padding: const EdgeInsets.only(top: 5, left: 3),
+            child: Text(
+              errorText!,
+              style: TextStyle(color: widget.errorColor, fontSize: 13),
+            ),
+          )
+      ],
     );
   }
 }
