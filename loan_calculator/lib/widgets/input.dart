@@ -93,21 +93,21 @@ class _InputBoxState extends State<InputBox> {
             filled: true,
             fillColor: widget.backgroundColor,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color: errorText != null ? Colors.red : widget.outlinedColor,
                 width: 2
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color: errorText != null ? Colors.red : widget.outlinedColor,
                 width: 2
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color: errorText != null ? Colors.red : widget.outlinedColor,
                 width: 2
