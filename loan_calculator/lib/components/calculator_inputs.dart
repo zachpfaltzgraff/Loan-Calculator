@@ -28,11 +28,13 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
             controller: principalController, 
             outlinedColor: theme.primaryColor, 
             backgroundColor: theme.backgroundColor,
+            errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
             focusNode: principalNode,
+            textInputType: TextInputType.number,
+            prefix: Text('\$', style: theme.textStyle(context),),
             validations: [
               InputValidation.onlyNumbers(),
               InputValidation.minValue(1),
-              InputValidation.maxLength(10),
             ],
           )
         ],

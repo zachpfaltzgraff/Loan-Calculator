@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:loan_calculator/widgets/input_validations.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 
 class InputBox extends StatefulWidget {
   final String hintText;
@@ -9,6 +11,7 @@ class InputBox extends StatefulWidget {
   final bool obscureText;
   final TextStyle? hintStyle;
   final TextStyle? textStyle;
+  final TextStyle? errorStyle;
   final Color backgroundColor;
   final bool autoFocus;
   final Widget? trailing;
@@ -16,7 +19,7 @@ class InputBox extends StatefulWidget {
   final FocusNode? focusNode;
 
   final List<InputValidation>? validations;
-  final Color errorColor;
+  final TextInputType? textInputType;
 
   const InputBox({
     super.key,
@@ -33,7 +36,8 @@ class InputBox extends StatefulWidget {
     this.onSubmitted,
     this.focusNode,
     this.validations,
-    this.errorColor = Colors.red,
+    this.textInputType,
+    this.errorStyle
   });
 
   @override
@@ -70,7 +74,7 @@ class _InputBoxState extends State<InputBox> {
 
   @override
   Widget build(BuildContext context) {
-    final outlineColor = hasError ? widget.errorColor : widget.outlinedColor;
+    final outlineColor = hasError ? Colors.red : widget.outlinedColor;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,13 +98,17 @@ class _InputBoxState extends State<InputBox> {
                   controller: widget.controller,
                   focusNode: widget.focusNode,
                   obscureText: widget.obscureText,
+                  keyboardType: widget.textInputType,
                   autofocus: widget.autoFocus,
                   onSubmitted: widget.onSubmitted,
+                  inputFormatters: widget.textInputType == TextInputType.number
+                    ? [ThousandsFormatter()]
+                    : null,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: widget.hintText,
                     hintStyle: widget.hintStyle?.copyWith(
-                      color: hasError ? widget.errorColor : widget.hintStyle?.color,
+                      color: hasError ? Colors.red : widget.hintStyle?.color,
                     ),
                     isCollapsed: true,
                   ),
@@ -116,10 +124,32 @@ class _InputBoxState extends State<InputBox> {
             padding: const EdgeInsets.only(top: 5, left: 3),
             child: Text(
               errorText!,
-              style: TextStyle(color: widget.errorColor, fontSize: 13),
+              style: widget.errorStyle,
             ),
           )
       ],
     );
   }
 }
+
+
+class ThousandsFormatter extends TextInputFormatter {
+  final NumberFormat formatter = NumberFormat('#,###');
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    String cleaned = newValue.text.replaceAll(',', '');
+    if (cleaned.isEmpty) return newValue;
+
+    int? number = int.tryParse(cleaned);
+    if (number == null) return oldValue;
+
+    final newText = formatter.format(number);
+    return TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length),
+    );
+  }
+}
+

@@ -14,21 +14,21 @@ class InputValidation {
 
   static InputValidation onlyNumbers() => InputValidation(
     errorMessage: 'Input must be numbers',
-    validate: (v) => RegExp(r'^[0-9]*$').hasMatch(v),
+    validate: (v) => RegExp(r'^[0-9,]*$').hasMatch(v),
   );
 
   static InputValidation maxLength(int max) => InputValidation(
-    errorMessage: 'Input has exceeded max length of $max',
+    errorMessage: 'Max length is $max',
     validate: (v) => v.length <= max,
   );
 
   static InputValidation minLength(int min, String msg) => InputValidation(
-    errorMessage: "Input is shorter than min length of $min",
+    errorMessage: "Min length is $min",
     validate: (v) => v.length >= min,
   );
 
   static InputValidation minValue(num min) => InputValidation(
-    errorMessage: 'Input is less than the minimum value of $min',
+    errorMessage: 'Minimum value $min',
     validate: (v) {
       if (v.isEmpty) return false;
       final n = num.tryParse(v);
@@ -37,7 +37,7 @@ class InputValidation {
   );
 
   static InputValidation maxValue(num max) => InputValidation(
-    errorMessage: 'Input is greater than the maximum value of $max',
+    errorMessage: 'Maximum value $max',
     validate: (v) {
       if (v.isEmpty) return false;
       final n = num.tryParse(v);
