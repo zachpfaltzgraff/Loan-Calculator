@@ -34,7 +34,6 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
             prefix: Text('\$', style: theme.textStyle(context),),
             validations: [
               InputValidation.onlyNumbers(),
-              InputValidation.minValue(1),
             ],
           )
         ],

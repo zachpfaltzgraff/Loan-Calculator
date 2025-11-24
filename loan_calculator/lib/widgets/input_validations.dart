@@ -31,7 +31,8 @@ class InputValidation {
     errorMessage: 'Minimum value $min',
     validate: (v) {
       if (v.isEmpty) return false;
-      final n = num.tryParse(v);
+      final cleaned = v.replaceAll(',', '');
+      final n = num.tryParse(cleaned);
       return n != null && n >= min;
     },
   );
@@ -40,7 +41,8 @@ class InputValidation {
     errorMessage: 'Maximum value $max',
     validate: (v) {
       if (v.isEmpty) return false;
-      final n = num.tryParse(v);
+      final cleaned = v.replaceAll(',', '');
+      final n = num.tryParse(cleaned);
       return n != null && n <= max;
     },
   );

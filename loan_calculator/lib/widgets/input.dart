@@ -52,7 +52,6 @@ class _InputBoxState extends State<InputBox> {
     super.initState();
 
     widget.controller.addListener(() {
-      print(1);
       _runValidation(widget.controller.text);
     });
   }
