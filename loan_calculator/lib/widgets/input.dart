@@ -113,7 +113,7 @@ class _InputBoxState extends State<InputBox> {
                 width: 2
               ),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
         ),
         Text(

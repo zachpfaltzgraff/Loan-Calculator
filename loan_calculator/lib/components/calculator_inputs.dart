@@ -26,43 +26,34 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          Row(
-            spacing: 10,
-            children: [
-              Expanded(
-                child: InputBox(
-                  hintText: 'Principal Balance', 
-                  controller: principalController, 
-                  outlinedColor: theme.primaryColor, 
-                  backgroundColor: theme.backgroundColor,
-                  errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                  hintStyle: theme.textStyle(context),
-                  focusNode: principalNode,
-                  textInputType: TextInputType.number,
-                  prefix: Text('\$', style: theme.textStyle(context),),
-                  validations: [
-                    InputValidation.onlyNumbers(),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: InputBox(
-                  hintText: 'Interest', 
-                  controller: interestCalculator, 
-                  outlinedColor: theme.primaryColor, 
-                  backgroundColor: theme.backgroundColor,
-                  errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                  hintStyle: theme.textStyle(context),
-                  focusNode: interestNode,
-                  textInputType: TextInputType.numberWithOptions(decimal: true),
-                  trailing: Text('%', style: theme.textStyle(context),),
-                  validations: [
-                    InputValidation.onlyNumbers(),
-                  ],
-                ),
-              ),
+          InputBox(
+            hintText: 'Principal Balance', 
+            controller: principalController, 
+            outlinedColor: theme.primaryColor, 
+            backgroundColor: theme.backgroundColor,
+            errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+            hintStyle: theme.textStyle(context),
+            focusNode: principalNode,
+            textInputType: TextInputType.number,
+            prefix: Text('\$', style: theme.textStyle(context),),
+            validations: [
+              InputValidation.onlyNumbers(),
             ],
-          )
+          ),
+          InputBox(
+            hintText: 'Interest', 
+            controller: interestCalculator, 
+            outlinedColor: theme.primaryColor, 
+            backgroundColor: theme.backgroundColor,
+            errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+            hintStyle: theme.textStyle(context),
+            focusNode: interestNode,
+            textInputType: TextInputType.numberWithOptions(decimal: true),
+            trailing: Text('%', style: theme.textStyle(context),),
+            validations: [
+              InputValidation.onlyNumbers(),
+            ],
+          ),
         ],
       ),
     );
