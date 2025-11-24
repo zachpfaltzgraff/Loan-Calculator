@@ -78,9 +78,8 @@ class _InputBoxState extends State<InputBox> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           decoration: BoxDecoration(
             color: widget.backgroundColor,
             borderRadius: BorderRadius.circular(5),
@@ -88,10 +87,6 @@ class _InputBoxState extends State<InputBox> {
           ),
           child: Row(
             children: [
-              if (widget.prefix != null) ...[
-                widget.prefix!,
-                const SizedBox(width: 8),
-              ],
               Expanded(
                 child: TextField(
                   controller: widget.controller,
@@ -105,8 +100,9 @@ class _InputBoxState extends State<InputBox> {
                     : null,
                   decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: widget.hintText,
-                    hintStyle: widget.hintStyle?.copyWith(
+                    prefix: widget.prefix,
+                    labelText: widget.hintText, // use labelText instead of hintText
+                    labelStyle: widget.hintStyle?.copyWith(
                       color: hasError ? Colors.red : widget.hintStyle?.color,
                     ),
                     isCollapsed: true,
@@ -117,15 +113,13 @@ class _InputBoxState extends State<InputBox> {
             ],
           ),
         ),
-
-        if (hasError)
-          Padding(
-            padding: const EdgeInsets.only(top: 5, left: 3),
-            child: Text(
-              errorText!,
-              style: widget.errorStyle,
-            ),
-          )
+        Padding(
+          padding: const EdgeInsets.only(top: 5, left: 3),
+          child: Text(
+            errorText ?? '',
+            style: widget.errorStyle,
+          ),
+        )
       ],
     );
   }

@@ -14,7 +14,7 @@ class InputValidation {
 
   static InputValidation onlyNumbers() => InputValidation(
     errorMessage: 'Input must be numbers',
-    validate: (v) => RegExp(r'^[0-9,]*$').hasMatch(v),
+    validate: (v) => RegExp(r'^[0-9,.]*$').hasMatch(v),
   );
 
   static InputValidation maxLength(int max) => InputValidation(
