@@ -51,6 +51,16 @@ class Themes extends ChangeNotifier {
 
   Color get darkBackgroundColor => Color.fromARGB(255, 44, 44, 44);
   Color get backgroundColor => _isDarkMode ? Color.fromARGB(255, 44, 44, 44) : Colors.white;
+  Color get textColor => _isDarkMode ? Colors.white : Colors.black;
+
+  TextStyle textStyle(BuildContext context) {
+    double fontSize = getScaledFontSize(context);
+    return TextStyle(
+      fontSize: fontSize,
+      fontWeight: FontWeight.w600,
+      color: textColor,
+    );
+  }
 
   getScaledFontSize(BuildContext context) {
     const double designTotal = 1276.0;
