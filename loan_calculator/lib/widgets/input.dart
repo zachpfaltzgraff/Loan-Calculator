@@ -69,58 +69,58 @@ class _InputBoxState extends State<InputBox> {
     setState(() => errorText = null);
   }
 
-  bool get hasError => errorText != null;
-
   @override
   Widget build(BuildContext context) {
-    final outlineColor = hasError ? Colors.red : widget.outlinedColor;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-          decoration: BoxDecoration(
-            color: widget.backgroundColor,
-            borderRadius: BorderRadius.circular(5),
-            border: Border.all(color: outlineColor, width: 2),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: widget.controller,
-                  focusNode: widget.focusNode,
-                  obscureText: widget.obscureText,
-                  keyboardType: widget.textInputType,
-                  autofocus: widget.autoFocus,
-                  onSubmitted: widget.onSubmitted,
-                  inputFormatters: widget.textInputType == TextInputType.number
-                    ? [ThousandsFormatter()]
-                    : null,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    prefix: widget.prefix,
-                    labelText: widget.hintText, // use labelText instead of hintText
-                    labelStyle: widget.hintStyle?.copyWith(
-                      color: hasError ? Colors.red : widget.hintStyle?.color,
-                    ),
-                    isCollapsed: true,
-                  ),
-                ),
+        TextField(
+          controller: widget.controller,
+          focusNode: widget.focusNode,
+          keyboardType: widget.textInputType,
+          inputFormatters: widget.textInputType == TextInputType.number
+            ? [ThousandsFormatter()]
+            : null,
+          decoration: InputDecoration(
+            labelText: widget.hintText,
+            labelStyle: widget.hintStyle?.copyWith(
+              color: errorText != null ? Colors.red : widget.hintStyle?.color,
+            ),
+            suffixStyle: widget.hintStyle,
+            prefixStyle: widget.hintStyle,
+            prefix: widget.prefix,
+            suffix: widget.trailing,
+            filled: true,
+            fillColor: widget.backgroundColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: BorderSide(
+                color: errorText != null ? Colors.red : widget.outlinedColor,
+                width: 2
               ),
-              if (widget.trailing != null) widget.trailing!,
-            ],
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: BorderSide(
+                color: errorText != null ? Colors.red : widget.outlinedColor,
+                width: 2
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: BorderSide(
+                color: errorText != null ? Colors.red : widget.outlinedColor,
+                width: 2
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 5, left: 3),
-          child: Text(
-            errorText ?? '',
-            style: widget.errorStyle,
-          ),
-        )
-      ],
+        Text(
+          errorText ?? ' ',
+          style: widget.errorStyle,
+        ),
+      ]
     );
   }
 }

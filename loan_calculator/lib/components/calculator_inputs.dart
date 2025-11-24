@@ -36,6 +36,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                   outlinedColor: theme.primaryColor, 
                   backgroundColor: theme.backgroundColor,
                   errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                  hintStyle: theme.textStyle(context),
                   focusNode: principalNode,
                   textInputType: TextInputType.number,
                   prefix: Text('\$', style: theme.textStyle(context),),
@@ -46,11 +47,12 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               ),
               Expanded(
                 child: InputBox(
-                  hintText: 'Interest %', 
+                  hintText: 'Interest', 
                   controller: interestCalculator, 
                   outlinedColor: theme.primaryColor, 
                   backgroundColor: theme.backgroundColor,
                   errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                  hintStyle: theme.textStyle(context),
                   focusNode: interestNode,
                   textInputType: TextInputType.numberWithOptions(decimal: true),
                   trailing: Text('%', style: theme.textStyle(context),),
