@@ -64,6 +64,13 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     });
   }
 
+
+  calculateResults() {
+    for(int i = 0; i < 6; i++) {
+      
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<Themes>(context);
