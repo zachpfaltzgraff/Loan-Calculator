@@ -116,10 +116,6 @@ class _InputBoxState extends State<InputBox> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
         ),
-        Text(
-          errorText ?? ' ',
-          style: widget.errorStyle,
-        ),
       ]
     );
   }

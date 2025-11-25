@@ -4,7 +4,6 @@ import 'package:loan_calculator/themes/vibrator.dart';
 import 'package:loan_calculator/widgets/input.dart';
 import 'package:loan_calculator/widgets/input_validations.dart';
 import 'package:provider/provider.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 
 class CalculatorInputs extends StatefulWidget {
   const CalculatorInputs({super.key});
@@ -27,6 +26,14 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
   ];
   int selectedCompoundingIndex = 0; 
 
+  List<String> loanTerms = [
+    'Month(s)',
+    'Year(s)',
+  ];
+  int selectedLoanTermIndex= 0; 
+  TextEditingController loanTermController = TextEditingController();
+  FocusNode loanNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<Themes>(context);
@@ -34,6 +41,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
+        spacing: 15,
         children: [
           InputBox(
             hintText: 'Principal Balance', 
@@ -63,26 +71,51 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               InputValidation.onlyNumbers(),
             ],
           ),
-          compoundingInterestBox(theme, context),
+          // compounding frequency box
+          dropdownWidget(theme, context, selectedCompoundingIndex, compoundingFrequency, 'Compounding Frequency'),
+
+          // Loan Term
+          Row(
+            spacing: 15,
+            children: [
+              Flexible(
+                child: InputBox(
+                  hintText: 'Loan Term', 
+                  controller: loanTermController, 
+                  outlinedColor: theme.primaryColor, 
+                  backgroundColor: theme.backgroundColor,
+                  errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                  hintStyle: theme.textStyle(context),
+                  focusNode: loanNode,
+                  textInputType: TextInputType.numberWithOptions(decimal: true),
+                  validations: [
+                    InputValidation.onlyNumbers(),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: dropdownWidget(theme, context, selectedLoanTermIndex, loanTerms, 'Term Length')),
+            ],
+          )
         ],
       ),
     );
   }
 
-  DropdownButtonFormField<int> compoundingInterestBox(Themes theme, BuildContext context) {
+  Widget dropdownWidget(Themes theme, BuildContext context, int index, List<String> list, String label) {
     return DropdownButtonFormField<int>(
-      value: selectedCompoundingIndex,
+      value: index,
       onChanged: (int? newIndex) {
-        if (selectedCompoundingIndex != newIndex) Vibrator().vibrateShort();
+        if (index != newIndex) Vibrator().vibrateShort();
         setState(() {
-          selectedCompoundingIndex = newIndex!;
+          index = newIndex!;
         });
       },
       onTap: () {
         Vibrator().vibrateShort();
       },
       decoration: InputDecoration(
-        labelText: 'Compounding Frequency',
+        labelText: label,
         labelStyle: theme.textStyle(context),
         filled: true,
         fillColor: theme.backgroundColor,
@@ -112,8 +145,8 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
       dropdownColor: theme.backgroundColor,
       icon: const Icon(Icons.arrow_drop_down_outlined),
       borderRadius: BorderRadius.circular(12),
-      items: List.generate(compoundingFrequency.length, (index) {
-        final item = compoundingFrequency[index];
+      items: List.generate(list.length, (index) {
+        final item = list[index];
         return DropdownMenuItem<int>(
           value: index,
           child: Text(item, style: theme.textStyle(context)),
