@@ -135,5 +135,15 @@ class CalculateFinal {
     return pf;
   }
 
-
+  double remainingPrincipal({
+    required double principal,
+    required double payment,
+    required double annualRate,
+    required int compoundingFreq,
+    required int paymentFreq,
+    required int paymentsMade,
+  }) {
+    double j = pow(1 + annualRate / compoundingFreq, compoundingFreq / paymentFreq) - 1;
+    return principal * pow(1 + j, paymentsMade) - payment * (pow(1 + j, paymentsMade) - 1) / j;
+  }
 }

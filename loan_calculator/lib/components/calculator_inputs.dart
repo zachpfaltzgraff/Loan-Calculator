@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:loan_calculator/components/pie_chart.dart';
 import 'package:loan_calculator/themes/raised_button.dart';
@@ -29,13 +28,13 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     'Monthly (12)',
     'Yearly (1)',
   ];
-  int selectedCompoundingIndex = 0; 
+  int selectedCompoundingIndex = 0;
 
   List<String> loanTerms = [
     'Month(s)',
     'Year(s)',
   ];
-  int selectedLoanTermIndex= 0; 
+  int selectedLoanTermIndex = 0;
   TextEditingController loanTermController = TextEditingController();
   FocusNode loanNode = FocusNode();
 
@@ -45,15 +44,18 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     'Bi-Weekly',
     'Weekly',
   ];
-  int selectedPayFrequency = 0; 
+  int selectedPayFrequency = 0;
   TextEditingController paymentAmountController = TextEditingController();
   FocusNode paymentAmountNode = FocusNode();
 
+  // NEW: Payments made
+  TextEditingController paymentsMadeController = TextEditingController();
+  FocusNode paymentsMadeNode = FocusNode();
+
   List<PieChartType> pieChartData = [
     PieChartType('Principal', 0, Themes().primaryColor),
-    PieChartType('Interest', 0, Colors.red)
+    PieChartType('Interest', 0, Colors.red),
   ];
-
 
   @override
   void initState() {
@@ -61,82 +63,69 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     principalController.addListener(() {
       setState(() {
         String clean = principalController.text.replaceAll(',', '');
-        pieChartData[0].amount = double.parse(clean);
+        pieChartData[0].amount = double.tryParse(clean) ?? 0;
       });
     });
   }
 
-
   calculateResults() {
     try {
-      // 1️⃣ Parse all inputs, use null if empty
       double? principal = principalController.text.isEmpty
-        ? null
-        : double.parse(principalController.text.replaceAll(',', ''));
+          ? null
+          : double.parse(principalController.text.replaceAll(',', ''));
       double? annualRate = interestCalculator.text.isEmpty
-        ? null
-        : double.parse(interestCalculator.text) / 100; // convert % to decimal
+          ? null
+          : double.parse(interestCalculator.text) / 100;
       double? loanTerm = loanTermController.text.isEmpty
-        ? null
-        : double.parse(loanTermController.text);
+          ? null
+          : double.parse(loanTermController.text);
       double? paymentAmount = paymentAmountController.text.isEmpty
-        ? null
-        : double.parse(paymentAmountController.text.replaceAll(',', ''));
+          ? null
+          : double.parse(paymentAmountController.text.replaceAll(',', ''));
+      int paymentsMade = paymentsMadeController.text.isEmpty
+          ? 0
+          : int.parse(paymentsMadeController.text);
 
-      // 2️⃣ Map compounding frequency and payment frequency to numbers
-      int compoundingFreq = [1, 12, 365][selectedCompoundingIndex]; // Yearly, Monthly, Daily
-      int paymentFreqMap = [12, 24, 26, 52][selectedPayFrequency]; // Monthly, Semi-Monthly, Bi-Weekly, Weekly
+      int compoundingFreq = [365, 12, 1][selectedCompoundingIndex];
+      int paymentFreqMap = [12, 24, 26, 52][selectedPayFrequency];
 
-      // Adjust loan term if in months
       if (loanTerm != null && selectedLoanTermIndex == 0) {
         loanTerm = loanTerm / 12; // convert months to years
       }
 
-      // Count how many nulls to detect missing field
-      int nullCount = [
-        principal,
-        annualRate,
-        loanTerm,
-        paymentAmount,
-      ].where((e) => e == null).length;
-
+      int nullCount = [principal, annualRate, loanTerm, paymentAmount]
+          .where((e) => e == null)
+          .length;
       if (nullCount != 1) {
         GlobalSnackBar.show(
             'Please leave exactly one field empty to calculate.', Colors.red);
         return;
       }
 
-      // 3️⃣ Define helper function: rate per payment period
       double ratePerPeriod(double r) =>
-        pow(1 + r / compoundingFreq, compoundingFreq / paymentFreqMap) - 1;
+          pow(1 + r / compoundingFreq, compoundingFreq / paymentFreqMap) - 1;
 
       int totalPayments = ((loanTerm ?? 0) * paymentFreqMap).round();
+      int remainingPayments = max(0, totalPayments - paymentsMade);
 
-      // 4️⃣ Solve for the missing field
       if (principal == null) {
-        // P = PMT * (1 - (1 + j)^-N) / j
         double j = ratePerPeriod(annualRate!);
         principal = paymentAmount! * (1 - pow(1 + j, -totalPayments)) / j;
         principalController.text = principal.toStringAsFixed(2);
       } else if (paymentAmount == null) {
-        // PMT = P * j / (1 - (1 + j)^-N)
         double j = ratePerPeriod(annualRate!);
         paymentAmount = principal * j / (1 - pow(1 + j, -totalPayments));
         paymentAmountController.text = paymentAmount.toStringAsFixed(2);
       } else if (loanTerm == null) {
-        // N = -ln(1 - P * j / PMT) / ln(1 + j)
         double j = ratePerPeriod(annualRate!);
         double N = -log(1 - principal * j / paymentAmount) / log(1 + j);
         loanTerm = N / paymentFreqMap;
-        // Convert to months if dropdown is months
         if (selectedLoanTermIndex == 0) loanTerm = loanTerm * 12;
         loanTermController.text = loanTerm.toStringAsFixed(1);
       } else if (annualRate == null) {
-        // Use binary search to approximate interest rate
         double low = 0.0;
         double high = 1.0;
         double r = 0.05;
-
         for (int i = 0; i < 1000; i++) {
           r = (low + high) / 2;
           double j = ratePerPeriod(r);
@@ -148,14 +137,18 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
             low = r;
           }
         }
-
         annualRate = r;
         interestCalculator.text = (annualRate * 100).toStringAsFixed(3);
       }
 
-      // 5️⃣ Update Pie Chart
-      pieChartData[0].amount = principal;
-      pieChartData[1].amount = (paymentAmount * totalPayments) - (principal);
+      // 5️⃣ Update Pie Chart with payments made
+      double j = ratePerPeriod(annualRate!);
+      double principalRemaining = principal * pow(1 + j, paymentsMade) -
+          paymentAmount * (pow(1 + j, paymentsMade) - 1) / j;
+      double interestRemaining = (paymentAmount * remainingPayments) - principalRemaining;
+
+      pieChartData[0].amount = max(0, principalRemaining);
+      pieChartData[1].amount = max(0, interestRemaining);
       setState(() {});
 
       GlobalSnackBar.show('Calculation complete', Colors.green);
@@ -164,7 +157,6 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<Themes>(context);
@@ -172,90 +164,96 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
-        spacing: 15,
         children: [
-          InputBox(
-            hintText: 'Principal Balance', 
-            controller: principalController, 
-            outlinedColor: theme.primaryColor, 
-            backgroundColor: theme.backgroundColor,
-            errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-            hintStyle: theme.textStyle(context),
-            focusNode: principalNode,
-            textInputType: TextInputType.number,
-            prefix: Text('\$', style: theme.textStyle(context),),
-            validations: [
-              InputValidation.onlyNumbers(),
-            ],
-          ),
-          InputBox(
-            hintText: 'Interest', 
-            controller: interestCalculator, 
-            outlinedColor: theme.primaryColor, 
-            backgroundColor: theme.backgroundColor,
-            errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-            hintStyle: theme.textStyle(context),
-            focusNode: interestNode,
-            textInputType: TextInputType.numberWithOptions(decimal: true),
-            trailing: Text('%', style: theme.textStyle(context),),
-            validations: [
-              InputValidation.onlyNumbers(),
-            ],
-          ),
-          // compounding frequency box
-          dropdownWidget(theme, context, selectedCompoundingIndex, compoundingFrequency, 'Compounding Frequency'),
-
-          // Loan Term
-          Row(
-            spacing: 15,
-            children: [
-              Flexible(
-                child: InputBox(
-                  hintText: 'Loan Term', 
-                  controller: loanTermController, 
-                  outlinedColor: theme.primaryColor, 
-                  backgroundColor: theme.backgroundColor,
-                  errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                  hintStyle: theme.textStyle(context),
-                  focusNode: loanNode,
-                  textInputType: TextInputType.numberWithOptions(decimal: true),
-                  validations: [
-                    InputValidation.onlyNumbers(),
-                  ],
-                ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                spacing: 15,
+                children: [
+                  InputBox(
+                    hintText: 'Principal Balance',
+                    controller: principalController,
+                    outlinedColor: theme.primaryColor,
+                    backgroundColor: theme.backgroundColor,
+                    errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                    hintStyle: theme.textStyle(context),
+                    focusNode: principalNode,
+                    textInputType: TextInputType.numberWithOptions(decimal: true),
+                    prefix: Text('\$', style: theme.textStyle(context)),
+                    validations: [InputValidation.onlyNumbers()],
+                  ),
+                  InputBox(
+                    hintText: 'Interest',
+                    controller: interestCalculator,
+                    outlinedColor: theme.primaryColor,
+                    backgroundColor: theme.backgroundColor,
+                    errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                    hintStyle: theme.textStyle(context),
+                    focusNode: interestNode,
+                    textInputType: TextInputType.numberWithOptions(decimal: true),
+                    trailing: Text('%', style: theme.textStyle(context)),
+                    validations: [InputValidation.onlyNumbers()],
+                  ),
+                  dropdownWidget(
+                      theme, context, selectedCompoundingIndex, compoundingFrequency, 'Compounding Frequency'),
+                  Row(
+                    spacing: 15,
+                    children: [
+                      Flexible(
+                        child: InputBox(
+                          hintText: 'Loan Term',
+                          controller: loanTermController,
+                          outlinedColor: theme.primaryColor,
+                          backgroundColor: theme.backgroundColor,
+                          errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                          hintStyle: theme.textStyle(context),
+                          focusNode: loanNode,
+                          textInputType: TextInputType.numberWithOptions(decimal: true),
+                          validations: [InputValidation.onlyNumbers()],
+                        ),
+                      ),
+                      Flexible(
+                          child: dropdownWidget(theme, context, selectedLoanTermIndex, loanTerms, 'Term Length')),
+                    ],
+                  ),
+                  Row(
+                    spacing: 20,
+                    children: [
+                      Flexible(
+                        child: InputBox(
+                          hintText: 'Payment Amount',
+                          controller: paymentAmountController,
+                          outlinedColor: theme.primaryColor,
+                          backgroundColor: theme.backgroundColor,
+                          errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                          hintStyle: theme.textStyle(context),
+                          focusNode: paymentAmountNode,
+                          textInputType: TextInputType.numberWithOptions(decimal: true),
+                          prefix: Text('\$', style: theme.textStyle(context)),
+                          validations: [InputValidation.onlyNumbers()],
+                        ),
+                      ),
+                      Flexible(
+                        child: dropdownWidget(theme, context, selectedPayFrequency, payFrequency, 'Frequency')),
+                    ],
+                  ),
+                  // NEW: Payments Made
+                  InputBox(
+                    hintText: 'Payments Made',
+                    controller: paymentsMadeController,
+                    outlinedColor: theme.primaryColor,
+                    backgroundColor: theme.backgroundColor,
+                    errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                    hintStyle: theme.textStyle(context),
+                    focusNode: paymentsMadeNode,
+                    textInputType: TextInputType.number,
+                    validations: [InputValidation.onlyNumbers()],
+                  ),
+                  PieChartWidget(data: pieChartData),
+                ],
               ),
-              Flexible(
-                child: dropdownWidget(theme, context, selectedLoanTermIndex, loanTerms, 'Term Length')
-              ),
-            ],
+            ),
           ),
-          Row(
-            spacing: 20,
-            children: [
-              Flexible(
-                child: InputBox(
-                  hintText: 'Payment Amount', 
-                  controller: paymentAmountController, 
-                  outlinedColor: theme.primaryColor, 
-                  backgroundColor: theme.backgroundColor,
-                  errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                  hintStyle: theme.textStyle(context),
-                  focusNode: paymentAmountNode,
-                  textInputType: TextInputType.numberWithOptions(decimal: true),
-                  prefix: Text('\$', style: theme.textStyle(context),),
-                  validations: [
-                    InputValidation.onlyNumbers(),
-                  ],
-                ),
-              ),
-              Flexible(
-                child: dropdownWidget(theme, context, selectedPayFrequency, payFrequency, 'Frequency')
-              ),
-            ],
-          ),
-          PieChartWidget(data: pieChartData),
-          Spacer(),
-          // TODO have an add here
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
@@ -265,7 +263,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               )
             ),
             child: RaisedButton(
-              text: 'Calculate', 
+              text: 'Calculate',
               width: double.infinity,
               primaryColor: theme.primaryColor,
               backgroundColor: theme.backgroundColor,
@@ -281,7 +279,8 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     );
   }
 
-  Widget dropdownWidget(Themes theme, BuildContext context, int index, List<String> list, String label) {
+  Widget dropdownWidget(
+      Themes theme, BuildContext context, int index, List<String> list, String label) {
     return DropdownButtonFormField<int>(
       value: index,
       onChanged: (int? newIndex) {
