@@ -47,6 +47,23 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
   TextEditingController paymentAmountController = TextEditingController();
   FocusNode paymentAmountNode = FocusNode();
 
+  List<PieChartType> pieChartData = [
+    PieChartType('Principal', 0, Themes().primaryColor),
+    PieChartType('Interest', 0, Colors.red)
+  ];
+
+
+  @override
+  void initState() {
+    super.initState();
+    principalController.addListener(() {
+      setState(() {
+        String clean = principalController.text.replaceAll(',', '');
+        pieChartData[0].amount = double.parse(clean);
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<Themes>(context);
@@ -135,10 +152,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               ),
             ],
           ),
-          PieChartWidget(data: [
-            PieChartType('Principal', 25000, theme.primaryColor),
-            PieChartType('Interest', 3280, Colors.red)
-          ]),
+          PieChartWidget(data: pieChartData),
           Spacer(),
           // TODO have an add here
           Container(
