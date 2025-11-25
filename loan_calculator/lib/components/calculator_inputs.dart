@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:loan_calculator/components/pie_chart.dart';
 import 'package:loan_calculator/themes/raised_button.dart';
@@ -66,10 +68,102 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
 
 
   calculateResults() {
-    for(int i = 0; i < 6; i++) {
-      
+    try {
+      // 1️⃣ Parse all inputs, use null if empty
+      double? principal = principalController.text.isEmpty
+        ? null
+        : double.parse(principalController.text.replaceAll(',', ''));
+      double? annualRate = interestCalculator.text.isEmpty
+        ? null
+        : double.parse(interestCalculator.text) / 100; // convert % to decimal
+      double? loanTerm = loanTermController.text.isEmpty
+        ? null
+        : double.parse(loanTermController.text);
+      double? paymentAmount = paymentAmountController.text.isEmpty
+        ? null
+        : double.parse(paymentAmountController.text.replaceAll(',', ''));
+
+      // 2️⃣ Map compounding frequency and payment frequency to numbers
+      int compoundingFreq = [1, 12, 365][selectedCompoundingIndex]; // Yearly, Monthly, Daily
+      int paymentFreqMap = [12, 24, 26, 52][selectedPayFrequency]; // Monthly, Semi-Monthly, Bi-Weekly, Weekly
+
+      // Adjust loan term if in months
+      if (loanTerm != null && selectedLoanTermIndex == 0) {
+        loanTerm = loanTerm / 12; // convert months to years
+      }
+
+      // Count how many nulls to detect missing field
+      int nullCount = [
+        principal,
+        annualRate,
+        loanTerm,
+        paymentAmount,
+      ].where((e) => e == null).length;
+
+      if (nullCount != 1) {
+        GlobalSnackBar.show(
+            'Please leave exactly one field empty to calculate.', Colors.red);
+        return;
+      }
+
+      // 3️⃣ Define helper function: rate per payment period
+      double ratePerPeriod(double r) =>
+        pow(1 + r / compoundingFreq, compoundingFreq / paymentFreqMap) - 1;
+
+      int totalPayments = ((loanTerm ?? 0) * paymentFreqMap).round();
+
+      // 4️⃣ Solve for the missing field
+      if (principal == null) {
+        // P = PMT * (1 - (1 + j)^-N) / j
+        double j = ratePerPeriod(annualRate!);
+        principal = paymentAmount! * (1 - pow(1 + j, -totalPayments)) / j;
+        principalController.text = principal.toStringAsFixed(2);
+      } else if (paymentAmount == null) {
+        // PMT = P * j / (1 - (1 + j)^-N)
+        double j = ratePerPeriod(annualRate!);
+        paymentAmount = principal * j / (1 - pow(1 + j, -totalPayments));
+        paymentAmountController.text = paymentAmount.toStringAsFixed(2);
+      } else if (loanTerm == null) {
+        // N = -ln(1 - P * j / PMT) / ln(1 + j)
+        double j = ratePerPeriod(annualRate!);
+        double N = -log(1 - principal * j / paymentAmount) / log(1 + j);
+        loanTerm = N / paymentFreqMap;
+        // Convert to months if dropdown is months
+        if (selectedLoanTermIndex == 0) loanTerm = loanTerm * 12;
+        loanTermController.text = loanTerm.toStringAsFixed(1);
+      } else if (annualRate == null) {
+        // Use binary search to approximate interest rate
+        double low = 0.0;
+        double high = 1.0;
+        double r = 0.05;
+
+        for (int i = 0; i < 1000; i++) {
+          r = (low + high) / 2;
+          double j = ratePerPeriod(r);
+          double estimate = principal * j / (1 - pow(1 + j, -totalPayments));
+          if ((estimate - paymentAmount).abs() < 1e-8) break;
+          if (estimate > paymentAmount) {
+            high = r;
+          } else {
+            low = r;
+          }
+        }
+
+        annualRate = r;
+        interestCalculator.text = (annualRate * 100).toStringAsFixed(3);
+      }
+
+      // 5️⃣ Update Pie Chart
+      pieChartData[0].amount = principal;
+      pieChartData[1].amount = (paymentAmount * totalPayments) - (principal);
+      setState(() {});
+
+      GlobalSnackBar.show('Calculation complete', Colors.green);
+    } catch (e) {
+      GlobalSnackBar.show('Invalid input: ${e.toString()}', Colors.red);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +271,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               backgroundColor: theme.backgroundColor,
               borderRadius: BorderRadius.circular(12),
               onPressed: () {
-                GlobalSnackBar.show('Hello', theme.primaryColor);
+                calculateResults();
               },
               textStyle: theme.textStyle(context)
             ),
