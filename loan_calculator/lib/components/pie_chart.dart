@@ -27,24 +27,18 @@ class PieChartWidget extends StatefulWidget {
 }
 
 class _PieChartWidgetState extends State<PieChartWidget> {
-  double total = 0;
   int? touchedIndex;
   final formatter = NumberFormat('#,##0.00');
-
-  @override
-  void initState() {
-    super.initState();
-    for(int i = 0; i < widget.data.length; i++) {
-      total += widget.data[i].amount;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<Themes>(context);
     final entries = widget.data;
 
-    final List<PieChartSectionData> sections = List.generate(widget.data.length, (i) {
+    // Recalculate total every build
+    final total = entries.fold<double>(0, (sum, e) => sum + e.amount);
+
+    final List<PieChartSectionData> sections = List.generate(entries.length, (i) {
       final label = entries[i].label;
       final value = entries[i].amount;
       final percentage = total == 0 ? 0.0 : (value / total) * 100;
@@ -52,8 +46,8 @@ class _PieChartWidgetState extends State<PieChartWidget> {
 
       return PieChartSectionData(
         value: value,
-        title: isTouched ? '\$${formatter.format(entries[i].amount)}' : label,
-        radius: isTouched ? 120 : 110, // use fixed radius in pixels
+        title: isTouched ? '\$${formatter.format(value)}' : label,
+        radius: isTouched ? 120 : 110,
         titleStyle: theme.textStyle(context).copyWith(
           color: theme.textColor,
           fontWeight: isTouched ? FontWeight.bold : FontWeight.normal,
@@ -70,37 +64,31 @@ class _PieChartWidgetState extends State<PieChartWidget> {
         Text('\$${formatter.format(total)}', style: theme.textStyle(context), textAlign: TextAlign.center,),
         SizedBox(
           height: 240,
-          child: widget.data.isEmpty
-            ? Center(
-              child: Text('No Data', style: theme.textStyle(context)),
-            )
-            : LayoutBuilder(
-              builder: (context, constraints) {
-                return PieChart(
-                  PieChartData(
-                    sections: sections,
-                    centerSpaceRadius: 0,
-                    sectionsSpace: 3,
-                    pieTouchData: PieTouchData(
-                      touchCallback: (event, response) {
-                        setState(() {
-                          if (!event.isInterestedForInteractions ||
-                              response == null ||
-                              response.touchedSection == null) {
-                            touchedIndex = null;
-                          } else {
-                            final index = response.touchedSection!.touchedSectionIndex;
-                            if (touchedIndex != index && index != -1) {
-                              Vibrator().vibrateShort();
-                            }
-                            touchedIndex = index;
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                );
-              },
+          child: entries.isEmpty
+            ? Center(child: Text('No Data', style: theme.textStyle(context)))
+            : PieChart(
+              PieChartData(
+                sections: sections,
+                centerSpaceRadius: 0,
+                sectionsSpace: 3,
+                pieTouchData: PieTouchData(
+                  touchCallback: (event, response) {
+                    setState(() {
+                      if (!event.isInterestedForInteractions ||
+                          response == null ||
+                          response.touchedSection == null) {
+                        touchedIndex = null;
+                      } else {
+                        final index = response.touchedSection!.touchedSectionIndex;
+                        if (touchedIndex != index && index != -1) {
+                          Vibrator().vibrateShort();
+                        }
+                        touchedIndex = index;
+                      }
+                    });
+                  },
+                ),
+              ),
             ),
         ),
       ],

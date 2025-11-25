@@ -48,10 +48,6 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
   TextEditingController paymentAmountController = TextEditingController();
   FocusNode paymentAmountNode = FocusNode();
 
-  // NEW: Payments made
-  TextEditingController paymentsMadeController = TextEditingController();
-  FocusNode paymentsMadeNode = FocusNode();
-
   List<PieChartType> pieChartData = [
     PieChartType('Principal', 0, Themes().primaryColor),
     PieChartType('Interest', 0, Colors.red),
@@ -68,7 +64,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     });
   }
 
-  calculateResults() {
+  calculateResults({String? forceCalculate}) {
     try {
       double? principal = principalController.text.isEmpty
           ? null
@@ -82,15 +78,30 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
       double? paymentAmount = paymentAmountController.text.isEmpty
           ? null
           : double.parse(paymentAmountController.text.replaceAll(',', ''));
-      int paymentsMade = paymentsMadeController.text.isEmpty
-          ? 0
-          : int.parse(paymentsMadeController.text);
 
       int compoundingFreq = [365, 12, 1][selectedCompoundingIndex];
       int paymentFreqMap = [12, 24, 26, 52][selectedPayFrequency];
 
       if (loanTerm != null && selectedLoanTermIndex == 0) {
-        loanTerm = loanTerm / 12; // convert months to years
+        loanTerm = loanTerm / 12;
+      }
+
+      // Force calculate specific field
+      if (forceCalculate != null) {
+        switch (forceCalculate) {
+          case 'principal':
+            principal = null;
+            break;
+          case 'interest':
+            annualRate = null;
+            break;
+          case 'loanTerm':
+            loanTerm = null;
+            break;
+          case 'payment':
+            paymentAmount = null;
+            break;
+        }
       }
 
       int nullCount = [principal, annualRate, loanTerm, paymentAmount]
@@ -106,8 +117,8 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
           pow(1 + r / compoundingFreq, compoundingFreq / paymentFreqMap) - 1;
 
       int totalPayments = ((loanTerm ?? 0) * paymentFreqMap).round();
-      int remainingPayments = max(0, totalPayments - paymentsMade);
 
+      // Calculate missing field
       if (principal == null) {
         double j = ratePerPeriod(annualRate!);
         principal = paymentAmount! * (1 - pow(1 + j, -totalPayments)) / j;
@@ -122,6 +133,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
         loanTerm = N / paymentFreqMap;
         if (selectedLoanTermIndex == 0) loanTerm = loanTerm * 12;
         loanTermController.text = loanTerm.toStringAsFixed(1);
+        totalPayments = N.round();
       } else if (annualRate == null) {
         double low = 0.0;
         double high = 1.0;
@@ -141,16 +153,14 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
         interestCalculator.text = (annualRate * 100).toStringAsFixed(3);
       }
 
-      // 5️⃣ Update Pie Chart with payments made
-      double j = ratePerPeriod(annualRate!);
-      double principalRemaining = principal * pow(1 + j, paymentsMade) -
-          paymentAmount * (pow(1 + j, paymentsMade) - 1) / j;
-      double interestRemaining = (paymentAmount * remainingPayments) - principalRemaining;
-
-      pieChartData[0].amount = max(0, principalRemaining);
-      pieChartData[1].amount = max(0, interestRemaining);
+      // Original calculation: total over lifetime of loan
+      double totalPaymentAmount = paymentAmount! * totalPayments;
+      double totalInterest = totalPaymentAmount - principal;
+      
+      pieChartData[0].amount = principal;
+      pieChartData[1].amount = totalInterest > 0 ? totalInterest : 0;
+      
       setState(() {});
-
       GlobalSnackBar.show('Calculation complete', Colors.green);
     } catch (e) {
       GlobalSnackBar.show('Invalid input: ${e.toString()}', Colors.red);
@@ -168,97 +178,174 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
           Expanded(
             child: SingleChildScrollView(
               child: Column(
-                spacing: 15,
+                spacing: 10,
                 children: [
-                  InputBox(
-                    hintText: 'Principal Balance',
-                    controller: principalController,
-                    outlinedColor: theme.primaryColor,
-                    backgroundColor: theme.backgroundColor,
-                    errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                    hintStyle: theme.textStyle(context),
-                    focusNode: principalNode,
-                    textInputType: TextInputType.numberWithOptions(decimal: true),
-                    prefix: Text('\$', style: theme.textStyle(context)),
-                    validations: [InputValidation.onlyNumbers()],
-                  ),
                   Row(
-                    spacing: 20,
+                    spacing: 5,
                     children: [
                       Expanded(
                         child: InputBox(
-                          hintText: 'Interest',
-                          controller: interestCalculator,
+                          hintText: 'Principal Balance',
+                          controller: principalController,
                           outlinedColor: theme.primaryColor,
                           backgroundColor: theme.backgroundColor,
                           errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
                           hintStyle: theme.textStyle(context),
-                          focusNode: interestNode,
-                          textInputType: TextInputType.numberWithOptions(decimal: true),
-                          trailing: Text('%', style: theme.textStyle(context)),
-                          validations: [InputValidation.onlyNumbers()],
-                        ),
-                      ),
-                      Expanded(
-                        child: dropdownWidget(
-                          theme, context, selectedCompoundingIndex, compoundingFrequency, 'Compounding Frequency'),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 15,
-                    children: [
-                      Flexible(
-                        child: InputBox(
-                          hintText: 'Loan Term',
-                          controller: loanTermController,
-                          outlinedColor: theme.primaryColor,
-                          backgroundColor: theme.backgroundColor,
-                          errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                          hintStyle: theme.textStyle(context),
-                          focusNode: loanNode,
-                          textInputType: TextInputType.numberWithOptions(decimal: true),
-                          validations: [InputValidation.onlyNumbers()],
-                        ),
-                      ),
-                      Flexible(
-                          child: dropdownWidget(theme, context, selectedLoanTermIndex, loanTerms, 'Term Length')),
-                    ],
-                  ),
-                  Row(
-                    spacing: 20,
-                    children: [
-                      Flexible(
-                        child: InputBox(
-                          hintText: 'Payment Amount',
-                          controller: paymentAmountController,
-                          outlinedColor: theme.primaryColor,
-                          backgroundColor: theme.backgroundColor,
-                          errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                          hintStyle: theme.textStyle(context),
-                          focusNode: paymentAmountNode,
+                          focusNode: principalNode,
                           textInputType: TextInputType.numberWithOptions(decimal: true),
                           prefix: Text('\$', style: theme.textStyle(context)),
                           validations: [InputValidation.onlyNumbers()],
                         ),
                       ),
-                      Flexible(
-                        child: dropdownWidget(theme, context, selectedPayFrequency, payFrequency, 'Frequency')),
+                      IconButton(
+                        icon: Icon(Icons.refresh, color: theme.primaryColor),
+                        onPressed: () {
+                          Vibrator().vibrateShort();
+                          calculateResults(forceCalculate: 'principal');
+                        },
+                      ),
                     ],
                   ),
-                  // NEW: Payments Made
-                  InputBox(
-                    hintText: 'Payments Made',
-                    controller: paymentsMadeController,
-                    outlinedColor: theme.primaryColor,
-                    backgroundColor: theme.backgroundColor,
-                    errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                    hintStyle: theme.textStyle(context),
-                    focusNode: paymentsMadeNode,
-                    textInputType: TextInputType.number,
-                    validations: [InputValidation.onlyNumbers()],
+                  Row(
+                    spacing: 5,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          spacing: 5,
+                          children: [
+                            Expanded(
+                              child: InputBox(
+                                hintText: 'Interest',
+                                controller: interestCalculator,
+                                outlinedColor: theme.primaryColor,
+                                backgroundColor: theme.backgroundColor,
+                                errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                                hintStyle: theme.textStyle(context),
+                                focusNode: interestNode,
+                                textInputType: TextInputType.numberWithOptions(decimal: true),
+                                trailing: Text('%', style: theme.textStyle(context)),
+                                validations: [InputValidation.onlyNumbers()],
+                              ),
+                            ),
+                            Expanded(
+                              child: dropdownWidget(
+                                theme, 
+                                context, 
+                                compoundingFrequency, 
+                                'Compounding Frequency',
+                                (newIndex) {
+                                  setState(() {
+                                    selectedCompoundingIndex = newIndex;
+                                  });
+                                },
+                                selectedCompoundingIndex,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.refresh, color: theme.primaryColor),
+                        onPressed: () {
+                          Vibrator().vibrateShort();
+                          calculateResults(forceCalculate: 'interest');
+                        },
+                      ),
+                    ],
                   ),
-                  PieChartWidget(data: pieChartData),
+                  Row(
+                    spacing: 5,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          spacing: 5,
+                          children: [
+                            Flexible(
+                              child: InputBox(
+                                hintText: 'Loan Term',
+                                controller: loanTermController,
+                                outlinedColor: theme.primaryColor,
+                                backgroundColor: theme.backgroundColor,
+                                errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                                hintStyle: theme.textStyle(context),
+                                focusNode: loanNode,
+                                textInputType: TextInputType.numberWithOptions(decimal: true),
+                                validations: [InputValidation.onlyNumbers()],
+                              ),
+                            ),
+                            Flexible(
+                              child: dropdownWidget(
+                                theme, 
+                                context, 
+                                loanTerms, 
+                                'Term Length',
+                                (newIndex) {
+                                  setState(() {
+                                    selectedLoanTermIndex = newIndex;
+                                  });
+                                },
+                                selectedLoanTermIndex,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.refresh, color: theme.primaryColor),
+                        onPressed: () {
+                          Vibrator().vibrateShort();
+                          calculateResults(forceCalculate: 'loanTerm');
+                        },
+                      ),
+                    ],
+                  ),
+                  Row(
+                    spacing: 5,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          spacing: 5,
+                          children: [
+                            Flexible(
+                              child: InputBox(
+                                hintText: 'Payment Amount',
+                                controller: paymentAmountController,
+                                outlinedColor: theme.primaryColor,
+                                backgroundColor: theme.backgroundColor,
+                                errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                                hintStyle: theme.textStyle(context),
+                                focusNode: paymentAmountNode,
+                                textInputType: TextInputType.numberWithOptions(decimal: true),
+                                prefix: Text('\$', style: theme.textStyle(context)),
+                                validations: [InputValidation.onlyNumbers()],
+                              ),
+                            ),
+                            Flexible(
+                              child: dropdownWidget(
+                                theme, 
+                                context, 
+                                payFrequency, 
+                                'Frequency',
+                                (newIndex) {
+                                  setState(() {
+                                    selectedPayFrequency = newIndex;
+                                  });
+                                },
+                                selectedPayFrequency,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.refresh, color: theme.primaryColor),
+                        onPressed: () {
+                          Vibrator().vibrateShort();
+                          calculateResults(forceCalculate: 'payment');
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -266,7 +353,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: BoxBorder.all(
+              border: Border.all(
                 width: 2,
                 color: theme.primaryColor,
               )
@@ -289,14 +376,20 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
   }
 
   Widget dropdownWidget(
-      Themes theme, BuildContext context, int index, List<String> list, String label) {
+    Themes theme, 
+    BuildContext context, 
+    List<String> list, 
+    String label,
+    Function(int) onChanged,
+    int currentValue,
+  ) {
     return DropdownButtonFormField<int>(
-      value: index,
+      value: currentValue,
       onChanged: (int? newIndex) {
-        if (index != newIndex) Vibrator().vibrateShort();
-        setState(() {
-          index = newIndex!;
-        });
+        if (newIndex != null && currentValue != newIndex) {
+          Vibrator().vibrateShort();
+          onChanged(newIndex);
+        }
       },
       onTap: () {
         Vibrator().vibrateShort();
