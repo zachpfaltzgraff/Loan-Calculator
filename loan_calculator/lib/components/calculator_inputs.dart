@@ -387,6 +387,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                     borderRadius: BorderRadius.circular(12),
                     onPressed: () {
                       resetValues();
+                      GlobalSnackBar.show('Values all Reset', theme.primaryColor);
                     },
                     textStyle: theme.textStyle(context)
                   ),
