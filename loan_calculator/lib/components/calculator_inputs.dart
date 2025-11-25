@@ -114,7 +114,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
       }
 
       double ratePerPeriod(double r) =>
-          pow(1 + r / compoundingFreq, compoundingFreq / paymentFreqMap) - 1;
+        pow(1 + r / compoundingFreq, compoundingFreq / paymentFreqMap) - 1;
 
       int totalPayments = ((loanTerm ?? 0) * paymentFreqMap).round();
 
@@ -153,7 +153,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
         interestCalculator.text = (annualRate * 100).toStringAsFixed(3);
       }
 
-      // Original calculation: total over lifetime of loan
+      // Calculate pie chart data - total over lifetime of loan
       double totalPaymentAmount = paymentAmount! * totalPayments;
       double totalInterest = totalPaymentAmount - principal;
       
@@ -346,6 +346,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                       ),
                     ],
                   ),
+                  PieChartWidget(data: pieChartData),
                 ],
               ),
             ),
