@@ -193,6 +193,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
         children: [
           Expanded(
             child: SingleChildScrollView(
+              clipBehavior: Clip.none,
               child: Column(
                 spacing: 10,
                 children: [

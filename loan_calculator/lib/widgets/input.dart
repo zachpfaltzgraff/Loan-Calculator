@@ -176,6 +176,7 @@ class _InputBoxState extends State<InputBox> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextField(
+          clipBehavior: Clip.none,
           controller: widget.controller,
           focusNode: widget.focusNode,
           keyboardType: widget.textInputType,
