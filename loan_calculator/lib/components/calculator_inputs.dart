@@ -133,10 +133,10 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               ),
             ],
           ),
-          PieChartWidget(data: {
-            'Principal': 100000,
-            'Interest': 10000
-          })
+          PieChartWidget(data: [
+            PieChartType('Principal', 25000, theme.primaryColor),
+            PieChartType('Interest', 3280, Colors.red)
+          ])
         ],
       ),
     );
