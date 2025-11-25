@@ -34,6 +34,16 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
   TextEditingController loanTermController = TextEditingController();
   FocusNode loanNode = FocusNode();
 
+  List<String> payFrequency = [
+    'Monthly',
+    'Semi-Monthly',
+    'Bi-Weekly',
+    'Weekly',
+  ];
+  int selectedPayFrequency = 0; 
+  TextEditingController paymentAmountController = TextEditingController();
+  FocusNode paymentAmountNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<Themes>(context);
@@ -94,9 +104,34 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                 ),
               ),
               Flexible(
-                child: dropdownWidget(theme, context, selectedLoanTermIndex, loanTerms, 'Term Length')),
+                child: dropdownWidget(theme, context, selectedLoanTermIndex, loanTerms, 'Term Length')
+              ),
             ],
-          )
+          ),
+          Row(
+            spacing: 20,
+            children: [
+              Flexible(
+                child: InputBox(
+                  hintText: 'Payment Amount', 
+                  controller: paymentAmountController, 
+                  outlinedColor: theme.primaryColor, 
+                  backgroundColor: theme.backgroundColor,
+                  errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                  hintStyle: theme.textStyle(context),
+                  focusNode: paymentAmountNode,
+                  textInputType: TextInputType.numberWithOptions(decimal: true),
+                  prefix: Text('\$', style: theme.textStyle(context),),
+                  validations: [
+                    InputValidation.onlyNumbers(),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: dropdownWidget(theme, context, selectedPayFrequency, payFrequency, 'Frequency')
+              ),
+            ],
+          ),
         ],
       ),
     );
