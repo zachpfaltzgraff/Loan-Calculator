@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:loan_calculator/components/pie_chart.dart';
+import 'package:loan_calculator/themes/raised_button.dart';
 import 'package:loan_calculator/themes/theme.dart';
 import 'package:loan_calculator/themes/vibrator.dart';
 import 'package:loan_calculator/widgets/input.dart';
@@ -136,7 +137,29 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
           PieChartWidget(data: [
             PieChartType('Principal', 25000, theme.primaryColor),
             PieChartType('Interest', 3280, Colors.red)
-          ])
+          ]),
+          Spacer(),
+          // TODO have an add here
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: BoxBorder.all(
+                width: 2,
+                color: theme.primaryColor,
+              )
+            ),
+            child: RaisedButton(
+              text: 'Calculate', 
+              width: double.infinity,
+              primaryColor: theme.primaryColor,
+              backgroundColor: theme.backgroundColor,
+              borderRadius: BorderRadius.circular(12),
+              onPressed: () {
+
+              },
+              textStyle: theme.textStyle(context)
+            ),
+          ),
         ],
       ),
     );
