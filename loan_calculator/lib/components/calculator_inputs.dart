@@ -3,6 +3,7 @@ import 'package:loan_calculator/components/pie_chart.dart';
 import 'package:loan_calculator/themes/raised_button.dart';
 import 'package:loan_calculator/themes/theme.dart';
 import 'package:loan_calculator/themes/vibrator.dart';
+import 'package:loan_calculator/widgets/global_keys.dart';
 import 'package:loan_calculator/widgets/input.dart';
 import 'package:loan_calculator/widgets/input_validations.dart';
 import 'package:provider/provider.dart';
@@ -155,7 +156,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               backgroundColor: theme.backgroundColor,
               borderRadius: BorderRadius.circular(12),
               onPressed: () {
-
+                GlobalSnackBar.show('Hello', theme.primaryColor);
               },
               textStyle: theme.textStyle(context)
             ),

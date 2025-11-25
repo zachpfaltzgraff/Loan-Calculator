@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:loan_calculator/components/calculator_interface.dart';
 import 'package:loan_calculator/themes/theme.dart';
+import 'package:loan_calculator/widgets/global_keys.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
     final theme = Provider.of<Themes>(context);
 
     return MaterialApp(
+      navigatorKey: GlobalSnackBar.navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: theme.isDarkMode ? Brightness.dark : Brightness.light,
