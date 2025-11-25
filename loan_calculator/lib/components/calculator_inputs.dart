@@ -182,20 +182,29 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                     prefix: Text('\$', style: theme.textStyle(context)),
                     validations: [InputValidation.onlyNumbers()],
                   ),
-                  InputBox(
-                    hintText: 'Interest',
-                    controller: interestCalculator,
-                    outlinedColor: theme.primaryColor,
-                    backgroundColor: theme.backgroundColor,
-                    errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                    hintStyle: theme.textStyle(context),
-                    focusNode: interestNode,
-                    textInputType: TextInputType.numberWithOptions(decimal: true),
-                    trailing: Text('%', style: theme.textStyle(context)),
-                    validations: [InputValidation.onlyNumbers()],
+                  Row(
+                    spacing: 20,
+                    children: [
+                      Expanded(
+                        child: InputBox(
+                          hintText: 'Interest',
+                          controller: interestCalculator,
+                          outlinedColor: theme.primaryColor,
+                          backgroundColor: theme.backgroundColor,
+                          errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                          hintStyle: theme.textStyle(context),
+                          focusNode: interestNode,
+                          textInputType: TextInputType.numberWithOptions(decimal: true),
+                          trailing: Text('%', style: theme.textStyle(context)),
+                          validations: [InputValidation.onlyNumbers()],
+                        ),
+                      ),
+                      Expanded(
+                        child: dropdownWidget(
+                          theme, context, selectedCompoundingIndex, compoundingFrequency, 'Compounding Frequency'),
+                      ),
+                    ],
                   ),
-                  dropdownWidget(
-                      theme, context, selectedCompoundingIndex, compoundingFrequency, 'Compounding Frequency'),
                   Row(
                     spacing: 15,
                     children: [
