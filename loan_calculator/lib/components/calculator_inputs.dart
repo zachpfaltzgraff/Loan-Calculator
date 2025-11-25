@@ -64,6 +64,21 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     });
   }
 
+  resetValues() {
+    setState(() {
+      principalController.text = '';
+      interestCalculator.text = '';
+      selectedCompoundingIndex = 0;
+      selectedPayFrequency = 0;
+      paymentAmountController.text = '';
+      loanTermController.text = '';
+      pieChartData = [
+        PieChartType('Principal', 0, Themes().primaryColor),
+        PieChartType('Interest', 0, Colors.red),
+      ];
+    });
+  }
+
   calculateResults({String? forceCalculate}) {
     try {
       double? principal = principalController.text.isEmpty
@@ -154,7 +169,8 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
       }
 
       // Calculate pie chart data - total over lifetime of loan
-      double totalPaymentAmount = paymentAmount! * totalPayments;
+      double j = ratePerPeriod(annualRate);
+      double totalPaymentAmount = paymentAmount * totalPayments;
       double totalInterest = totalPaymentAmount - principal;
       
       pieChartData[0].amount = principal;
@@ -232,7 +248,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                                 theme, 
                                 context, 
                                 compoundingFrequency, 
-                                'Compounding Frequency',
+                                'Compounding Freq.',
                                 (newIndex) {
                                   setState(() {
                                     selectedCompoundingIndex = newIndex;
@@ -351,25 +367,54 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               ),
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                width: 2,
-                color: theme.primaryColor,
-              )
-            ),
-            child: RaisedButton(
-              text: 'Calculate',
-              width: double.infinity,
-              primaryColor: theme.primaryColor,
-              backgroundColor: theme.backgroundColor,
-              borderRadius: BorderRadius.circular(12),
-              onPressed: () {
-                calculateResults();
-              },
-              textStyle: theme.textStyle(context)
-            ),
+          Row(
+            spacing: 5,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      width: 2,
+                      color: Colors.red,
+                    )
+                  ),
+                  child: RaisedButton(
+                    text: 'Reset',
+                    width: double.infinity,
+                    primaryColor:  Colors.red,
+                    backgroundColor: theme.backgroundColor,
+                    borderRadius: BorderRadius.circular(12),
+                    onPressed: () {
+                      resetValues();
+                    },
+                    textStyle: theme.textStyle(context)
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      width: 2,
+                      color: theme.primaryColor,
+                    )
+                  ),
+                  child: RaisedButton(
+                    text: 'Calculate',
+                    width: double.infinity,
+                    primaryColor: theme.primaryColor,
+                    backgroundColor: theme.backgroundColor,
+                    borderRadius: BorderRadius.circular(12),
+                    onPressed: () {
+                      calculateResults();
+                    },
+                    textStyle: theme.textStyle(context)
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
