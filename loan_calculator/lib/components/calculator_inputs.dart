@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loan_calculator/components/pie_chart.dart';
 import 'package:loan_calculator/themes/theme.dart';
 import 'package:loan_calculator/themes/vibrator.dart';
 import 'package:loan_calculator/widgets/input.dart';
@@ -132,6 +133,10 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               ),
             ],
           ),
+          PieChartWidget(data: {
+            'Principal': 100000,
+            'Interest': 10000
+          })
         ],
       ),
     );
