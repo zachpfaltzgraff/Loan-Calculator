@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loan_calculator/themes/theme.dart';
 import 'package:loan_calculator/widgets/input_validations.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
@@ -190,7 +191,26 @@ class _InputBoxState extends State<InputBox> {
             suffixStyle: widget.hintStyle,
             prefixStyle: widget.hintStyle,
             prefix: widget.prefix,
-            suffix: widget.trailing,
+            suffix: widget.controller.text.isNotEmpty || widget.trailing != null
+              ? Row(
+                  mainAxisSize: MainAxisSize.min, // important! so it doesn’t take full width
+                  children: [
+                    if (widget.trailing != null) widget.trailing!,
+                    if (widget.controller.text.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {
+                          widget.controller.clear();
+                          _runValidation('');
+                          setState(() {}); // refresh UI
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4.0), // small gap
+                          child: Icon(Icons.clear, size: 20, color: Themes().textColor),
+                        ),
+                      ),
+                  ],
+                )
+              : null,
             filled: true,
             fillColor: widget.backgroundColor,
             border: OutlineInputBorder(
