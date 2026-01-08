@@ -187,7 +187,6 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
       }
 
       // Calculate pie chart data - total over lifetime of loan
-      double j = ratePerPeriod(annualRate);
       double totalPaymentAmount = paymentAmount * totalPayments;
       double totalInterest = totalPaymentAmount - principal;
       
@@ -429,7 +428,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     int currentValue,
   ) {
     return DropdownButtonFormField<int>(
-      value: currentValue,
+      initialValue: currentValue,
       onChanged: (int? newIndex) {
         if (newIndex != null && currentValue != newIndex) {
           Vibrator().vibrateShort();
