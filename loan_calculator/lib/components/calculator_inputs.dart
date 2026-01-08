@@ -141,8 +141,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
           .where((e) => e == null)
           .length;
       if (nullCount != 1) {
-        GlobalSnackBar.show(
-            'Please leave exactly one field empty to calculate.', Colors.red);
+        GlobalSnackBar.show('Please leave exactly one field empty to calculate.', Colors.red);
         return;
       }
 
