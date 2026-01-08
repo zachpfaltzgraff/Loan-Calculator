@@ -18,7 +18,7 @@ class _CalculatorInterfaceState extends State<CalculatorInterface> {
     return Scaffold(
       backgroundColor: theme.backgroundColor,
       appBar: AppBar(
-        title: Text('LoanSense', style: theme.titleStyle(context),),
+        title: Text('MyLoanPal', style: theme.titleStyle(context),),
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
