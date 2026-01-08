@@ -11,6 +11,8 @@
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-5936113316990256~4413568825</string>
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>loan_calculator</string>

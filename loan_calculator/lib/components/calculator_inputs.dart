@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:loan_calculator/components/pie_chart.dart';
 import 'package:loan_calculator/themes/raised_button.dart';
 import 'package:loan_calculator/themes/theme.dart';
@@ -53,6 +55,8 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     PieChartType('Interest', 0, Colors.red),
   ];
 
+  BannerAd? bannerAd;
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +66,15 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
         pieChartData[0].amount = double.tryParse(clean) ?? 0;
       });
     });
+
+    bannerAd = BannerAd(
+      adUnitId: Platform.isAndroid 
+        ? 'ca-app-pub-5936113316990256/7722258443' 
+        : 'ca-app-pub-5936113316990256/2585481834',
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(),
+    )..load();
   }
 
   resetValues() {
@@ -340,6 +353,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               ),
             ),
           ),
+          Text('1234'),
           Row(
             spacing: 5,
             children: [
