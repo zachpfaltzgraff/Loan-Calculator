@@ -1,4 +1,4 @@
-package com.example.loan_calculator
+package com.zachpfaltzgraff.loan_calculator
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -214,13 +214,6 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                           validations: [InputValidation.onlyNumbers()],
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.refresh, color: theme.primaryColor),
-                        onPressed: () {
-                          Vibrator().vibrateShort();
-                          calculateResults(forceCalculate: 'principal');
-                        },
-                      ),
                     ],
                   ),
                   Row(
@@ -261,13 +254,6 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                           ],
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.refresh, color: theme.primaryColor),
-                        onPressed: () {
-                          Vibrator().vibrateShort();
-                          calculateResults(forceCalculate: 'interest');
-                        },
-                      ),
                     ],
                   ),
                   Row(
@@ -306,13 +292,6 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                             ),
                           ],
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.refresh, color: theme.primaryColor),
-                        onPressed: () {
-                          Vibrator().vibrateShort();
-                          calculateResults(forceCalculate: 'loanTerm');
-                        },
                       ),
                     ],
                   ),
@@ -353,13 +332,6 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                             ),
                           ],
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.refresh, color: theme.primaryColor),
-                        onPressed: () {
-                          Vibrator().vibrateShort();
-                          calculateResults(forceCalculate: 'payment');
-                        },
                       ),
                     ],
                   ),
