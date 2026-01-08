@@ -6,7 +6,9 @@ import 'package:loan_calculator/widgets/global_keys.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await MobileAds.instance.initialize();
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => Themes(),
