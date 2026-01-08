@@ -56,6 +56,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
   ];
 
   BannerAd? bannerAd;
+  bool adLoaded = false;
 
   @override
   void initState() {
@@ -74,7 +75,11 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
       size: AdSize.banner,
       request: AdRequest(),
       listener: BannerAdListener(),
-    )..load();
+    )..load().then((value) {
+      setState(() {
+        adLoaded = true;
+      });
+    });
   }
 
   resetValues() {
@@ -353,7 +358,13 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
               ),
             ),
           ),
-          Text('1234'),
+          if(adLoaded)
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 6),
+              height: bannerAd!.size.height.toDouble(),
+              width: bannerAd!.size.width.toDouble(),
+              child: AdWidget(ad: bannerAd!)
+            ),
           Row(
             spacing: 5,
             children: [
