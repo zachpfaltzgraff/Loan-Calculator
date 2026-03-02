@@ -55,7 +55,7 @@ class Themes extends ChangeNotifier {
   Color get textColor => _isDarkMode ? Colors.white : Colors.black;
 
   TextStyle titleStyle(BuildContext context) {
-    double fontSize = getScaledFontSize(24, context);
+    double fontSize = 24;
     return TextStyle(
       fontSize: fontSize,
       fontWeight: FontWeight.w600,
@@ -64,7 +64,7 @@ class Themes extends ChangeNotifier {
   }
 
   TextStyle textStyle(BuildContext context) {
-    double fontSize = getScaledFontSize(16, context);
+    double fontSize = 16;
     return TextStyle(
       fontSize: fontSize,
       fontWeight: FontWeight.w600,
@@ -73,7 +73,7 @@ class Themes extends ChangeNotifier {
   }
 
   TextStyle hintStyle(BuildContext context) {
-    double fontSize = getScaledFontSize(12, context);
+    double fontSize = 12;
     return TextStyle(
       fontSize: fontSize,
       fontWeight: FontWeight.w600,
@@ -81,10 +81,4 @@ class Themes extends ChangeNotifier {
     );
   }
 
-  getScaledFontSize(double textSize, BuildContext context) {
-    const double designTotal = 1276.0;
-    double total = MediaQuery.of(context).size.width + MediaQuery.of(context).size.height;
-    double scale = total / designTotal;
-    return textSize * scale;
-  }
 }
