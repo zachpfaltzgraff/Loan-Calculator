@@ -203,217 +203,219 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
   Widget build(BuildContext context) {
     final theme = Provider.of<Themes>(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              clipBehavior: Clip.none,
-              child: Column(
-                spacing: 10,
-                children: [
-                  Row(
-                    spacing: 5,
-                    children: [
-                      Expanded(
-                        child: InputBox(
-                          hintText: 'Principal Balance',
-                          controller: principalController,
-                          outlinedColor: theme.primaryColor,
-                          backgroundColor: theme.backgroundColor,
-                          errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                          hintStyle: theme.textStyle(context),
-                          focusNode: principalNode,
-                          textInputType: TextInputType.numberWithOptions(decimal: true),
-                          prefix: Text('\$', style: theme.textStyle(context)),
-                          validations: [InputValidation.onlyNumbers()],
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                clipBehavior: Clip.none,
+                child: Column(
+                  spacing: 10,
+                  children: [
+                    Row(
+                      spacing: 5,
+                      children: [
+                        Expanded(
+                          child: InputBox(
+                            hintText: 'Principal Balance',
+                            controller: principalController,
+                            outlinedColor: theme.primaryColor,
+                            backgroundColor: theme.backgroundColor,
+                            errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                            hintStyle: theme.textStyle(context),
+                            focusNode: principalNode,
+                            textInputType: TextInputType.numberWithOptions(decimal: true),
+                            prefix: Text('\$', style: theme.textStyle(context)),
+                            validations: [InputValidation.onlyNumbers()],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 5,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          spacing: 5,
-                          children: [
-                            Expanded(
-                              child: InputBox(
-                                hintText: 'Interest',
-                                controller: interestCalculator,
-                                outlinedColor: theme.primaryColor,
-                                backgroundColor: theme.backgroundColor,
-                                errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                                hintStyle: theme.textStyle(context),
-                                focusNode: interestNode,
-                                textInputType: TextInputType.numberWithOptions(decimal: true),
-                                trailing: Text('%', style: theme.textStyle(context)),
-                                validations: [InputValidation.onlyNumbers()],
+                      ],
+                    ),
+                    Row(
+                      spacing: 5,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            spacing: 5,
+                            children: [
+                              Expanded(
+                                child: InputBox(
+                                  hintText: 'Interest',
+                                  controller: interestCalculator,
+                                  outlinedColor: theme.primaryColor,
+                                  backgroundColor: theme.backgroundColor,
+                                  errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                                  hintStyle: theme.textStyle(context),
+                                  focusNode: interestNode,
+                                  textInputType: TextInputType.numberWithOptions(decimal: true),
+                                  trailing: Text('%', style: theme.textStyle(context)),
+                                  validations: [InputValidation.onlyNumbers()],
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: dropdownWidget(
-                                theme, 
-                                context, 
-                                compoundingFrequency, 
-                                'Compounding Freq.',
-                                (newIndex) {
-                                  setState(() {
-                                    selectedCompoundingIndex = newIndex;
-                                  });
-                                },
-                                selectedCompoundingIndex,
+                              Expanded(
+                                child: dropdownWidget(
+                                  theme,
+                                  context,
+                                  compoundingFrequency,
+                                  'Compounding Freq.',
+                                  (newIndex) {
+                                    setState(() {
+                                      selectedCompoundingIndex = newIndex;
+                                    });
+                                  },
+                                  selectedCompoundingIndex,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 5,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          spacing: 5,
-                          children: [
-                            Flexible(
-                              child: InputBox(
-                                hintText: 'Loan Term',
-                                controller: loanTermController,
-                                outlinedColor: theme.primaryColor,
-                                backgroundColor: theme.backgroundColor,
-                                errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                                hintStyle: theme.textStyle(context),
-                                focusNode: loanNode,
-                                textInputType: TextInputType.numberWithOptions(decimal: true),
-                                validations: [InputValidation.onlyNumbers()],
+                      ],
+                    ),
+                    Row(
+                      spacing: 5,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            spacing: 5,
+                            children: [
+                              Flexible(
+                                child: InputBox(
+                                  hintText: 'Loan Term',
+                                  controller: loanTermController,
+                                  outlinedColor: theme.primaryColor,
+                                  backgroundColor: theme.backgroundColor,
+                                  errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                                  hintStyle: theme.textStyle(context),
+                                  focusNode: loanNode,
+                                  textInputType: TextInputType.numberWithOptions(decimal: true),
+                                  validations: [InputValidation.onlyNumbers()],
+                                ),
                               ),
-                            ),
-                            Flexible(
-                              child: dropdownWidget(
-                                theme, 
-                                context, 
-                                loanTerms, 
-                                'Term Length',
-                                (newIndex) {
-                                  setState(() {
-                                    selectedLoanTermIndex = newIndex;
-                                  });
-                                },
-                                selectedLoanTermIndex,
+                              Flexible(
+                                child: dropdownWidget(
+                                  theme,
+                                  context,
+                                  loanTerms,
+                                  'Term Length',
+                                  (newIndex) {
+                                    setState(() {
+                                      selectedLoanTermIndex = newIndex;
+                                    });
+                                  },
+                                  selectedLoanTermIndex,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 5,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          spacing: 5,
-                          children: [
-                            Flexible(
-                              child: InputBox(
-                                hintText: 'Payment Amount',
-                                controller: paymentAmountController,
-                                outlinedColor: theme.primaryColor,
-                                backgroundColor: theme.backgroundColor,
-                                errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
-                                hintStyle: theme.textStyle(context),
-                                focusNode: paymentAmountNode,
-                                textInputType: TextInputType.numberWithOptions(decimal: true),
-                                prefix: Text('\$', style: theme.textStyle(context)),
-                                validations: [InputValidation.onlyNumbers()],
+                      ],
+                    ),
+                    Row(
+                      spacing: 5,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            spacing: 5,
+                            children: [
+                              Flexible(
+                                child: InputBox(
+                                  hintText: 'Payment Amount',
+                                  controller: paymentAmountController,
+                                  outlinedColor: theme.primaryColor,
+                                  backgroundColor: theme.backgroundColor,
+                                  errorStyle: theme.hintStyle(context).copyWith(color: Colors.red),
+                                  hintStyle: theme.textStyle(context),
+                                  focusNode: paymentAmountNode,
+                                  textInputType: TextInputType.numberWithOptions(decimal: true),
+                                  prefix: Text('\$', style: theme.textStyle(context)),
+                                  validations: [InputValidation.onlyNumbers()],
+                                ),
                               ),
-                            ),
-                            Flexible(
-                              child: dropdownWidget(
-                                theme, 
-                                context, 
-                                payFrequency, 
-                                'Frequency',
-                                (newIndex) {
-                                  setState(() {
-                                    selectedPayFrequency = newIndex;
-                                  });
-                                },
-                                selectedPayFrequency,
+                              Flexible(
+                                child: dropdownWidget(
+                                  theme,
+                                  context,
+                                  payFrequency,
+                                  'Frequency',
+                                  (newIndex) {
+                                    setState(() {
+                                      selectedPayFrequency = newIndex;
+                                    });
+                                  },
+                                  selectedPayFrequency,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  PieChartWidget(data: pieChartData),
-                ],
-              ),
-            ),
-          ),
-          if(adLoaded)
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 6),
-              height: bannerAd!.size.height.toDouble(),
-              width: bannerAd!.size.width.toDouble(),
-              child: AdWidget(ad: bannerAd!)
-            ),
-          Row(
-            spacing: 5,
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      width: 2,
-                      color: Colors.red,
-                    )
-                  ),
-                  child: RaisedButton(
-                    text: 'Reset',
-                    width: double.infinity,
-                    primaryColor:  Colors.red,
-                    backgroundColor: theme.backgroundColor,
-                    borderRadius: BorderRadius.circular(12),
-                    onPressed: () {
-                      resetValues();
-                      GlobalSnackBar.show('Values All Reset', theme.primaryColor);
-                    },
-                    textStyle: theme.textStyle(context)
-                  ),
+                      ],
+                    ),
+                    PieChartWidget(data: pieChartData),
+                  ],
                 ),
               ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      width: 2,
-                      color: theme.primaryColor,
-                    )
-                  ),
-                  child: RaisedButton(
-                    text: 'Calculate',
-                    width: double.infinity,
-                    primaryColor: theme.primaryColor,
-                    backgroundColor: theme.backgroundColor,
-                    borderRadius: BorderRadius.circular(12),
-                    onPressed: () {
-                      calculateResults();
-                    },
-                    textStyle: theme.textStyle(context)
+            ),
+            if (adLoaded)
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 6),
+                height: bannerAd!.size.height.toDouble(),
+                width: bannerAd!.size.width.toDouble(),
+                child: AdWidget(ad: bannerAd!),
+              ),
+            Row(
+              spacing: 5,
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(width: 2, color: Colors.red),
+                    ),
+                    child: RaisedButton(
+                      text: 'Reset',
+                      width: double.infinity,
+                      primaryColor: Colors.red,
+                      backgroundColor: theme.backgroundColor,
+                      borderRadius: BorderRadius.circular(12),
+                      onPressed: () {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        resetValues();
+                        GlobalSnackBar.show('Values All Reset', theme.primaryColor);
+                      },
+                      textStyle: theme.textStyle(context),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(width: 2, color: theme.primaryColor),
+                    ),
+                    child: RaisedButton(
+                      text: 'Calculate',
+                      width: double.infinity,
+                      primaryColor: theme.primaryColor,
+                      backgroundColor: theme.backgroundColor,
+                      borderRadius: BorderRadius.circular(12),
+                      onPressed: () {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        calculateResults();
+                      },
+                      textStyle: theme.textStyle(context),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
