@@ -206,7 +206,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        FocusManager.instance.primaryFocus?.unfocus();
+        FocusScope.of(context).unfocus();
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -384,7 +384,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                       backgroundColor: theme.backgroundColor,
                       borderRadius: BorderRadius.circular(12),
                       onPressed: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
+                        FocusScope.of(context).unfocus();
                         resetValues();
                         GlobalSnackBar.show('Values All Reset', theme.primaryColor);
                       },
@@ -405,7 +405,7 @@ class _CalculatorInputsState extends State<CalculatorInputs> {
                       backgroundColor: theme.backgroundColor,
                       borderRadius: BorderRadius.circular(12),
                       onPressed: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
+                        FocusScope.of(context).unfocus();
                         calculateResults();
                       },
                       textStyle: theme.textStyle(context),
